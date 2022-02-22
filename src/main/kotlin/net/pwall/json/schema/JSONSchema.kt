@@ -74,6 +74,8 @@ sealed class JSONSchema(
 
     open val title: String? = null
 
+    open val existingInterfaces: List<String>? = null
+
     open fun childLocation(pointer: JSONPointer): JSONPointer = pointer
 
     abstract fun validate(json: JSONValue?, instanceLocation: JSONPointer = JSONPointer.root): Boolean
@@ -215,8 +217,15 @@ sealed class JSONSchema(
 
     }
 
-    class General(val schemaVersion: String, override val title: String?, override val description: String?, uri: URI?,
-            location: JSONPointer, val children: List<JSONSchema>) : JSONSchema(uri, location) {
+    class General(
+        val schemaVersion: String,
+        override val title: String?,
+        override val description: String?,
+        override val existingInterfaces: List<String>?,
+        uri: URI?,
+        location: JSONPointer,
+        val children: List<JSONSchema>
+    ) : JSONSchema(uri, location) {
 
         override fun validate(json: JSONValue?, instanceLocation: JSONPointer): Boolean {
             for (child in children)

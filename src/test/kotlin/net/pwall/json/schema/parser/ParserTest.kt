@@ -49,7 +49,7 @@ class ParserTest {
 
     @Test fun `should parse empty schema`() {
         val filename = "src/test/resources/empty.schema.json"
-        val expected = JSONSchema.General("http://json-schema.org/draft/2019-09/schema", null, null,
+        val expected = JSONSchema.General("http://json-schema.org/draft/2019-09/schema", null, null, null,
                 URI("http://pwall.net/schema/test/empty"), JSONPointer.root, emptyList())
         expect(expected) { JSONSchema.parseFile(filename) }
     }
@@ -70,7 +70,7 @@ class ParserTest {
         val filename = "src/test/resources/test-type-null.schema.json"
         val uri = URI("http://pwall.net/schema/test/type-null")
         val typeTest = TypeValidator(uri, JSONPointer.root.child("type"), listOf(JSONSchema.Type.NULL))
-        val expected = JSONSchema.General("http://json-schema.org/draft/2019-09/schema", null, null, uri,
+        val expected = JSONSchema.General("http://json-schema.org/draft/2019-09/schema", null, null, null, uri,
                 JSONPointer.root, listOf(typeTest))
         expect(expected) { JSONSchema.parseFile(filename) }
     }

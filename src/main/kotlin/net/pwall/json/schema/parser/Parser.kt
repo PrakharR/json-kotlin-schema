@@ -172,9 +172,10 @@ class Parser(var options: Options = Options(), uriResolver: (URI) -> InputStream
         }
         val title = schemaJSON.getStringOrNull("title")
         val description = getDescription(schemaJSON, uri, pointer)
+        val existingInterfaces = getExistingInterfaces(schemaJSON, pointer)
 
         val children = mutableListOf<JSONSchema>()
-        val result = JSONSchema.General(schemaVersion201909[0], title, description, uri, pointer, children)
+        val result = JSONSchema.General(schemaVersion201909[0], title, description, existingInterfaces, uri, pointer, children)
         for ((key, value) in schemaJSON.entries) {
             val childPointer = pointer.child(key)
             when (key) {
@@ -261,6 +262,17 @@ class Parser(var options: Options = Options(), uriResolver: (URI) -> InputStream
             }
         }
         throw JSONSchemaException("Invalid description - ${errorPointer(uri, pointer)}")
+    }
+
+    private fun getExistingInterfaces(schemaJSON: JSONMapping<*>, pointer: JSONPointer): List<String>? {
+        val value = schemaJSON["existingInterfaces"] ?: return null
+        if (value !is JSONSequence<*>)
+            throw JSONSchemaException("existing interfaces must be array - ${pointer.pointerOrRoot()}")
+        return value.mapIndexed { i, entry ->
+            if (entry !is JSONString)
+                throw JSONSchemaException("existing interfaces items must be string - ${pointer.child(i)}")
+            entry.value
+        }
     }
 
     private fun errorPointer(uri: URI?, pointer: JSONPointer): String {
