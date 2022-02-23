@@ -57,6 +57,7 @@ import net.pwall.json.schema.subschema.ExtensionSchema
 import net.pwall.json.schema.subschema.IfThenElseSchema
 import net.pwall.json.schema.subschema.ItemsArraySchema
 import net.pwall.json.schema.subschema.ItemsSchema
+import net.pwall.json.schema.subschema.OverriddenSchema
 import net.pwall.json.schema.subschema.PatternPropertiesSchema
 import net.pwall.json.schema.subschema.PropertiesSchema
 import net.pwall.json.schema.subschema.PropertyNamesSchema
@@ -215,6 +216,7 @@ class Parser(var options: Options = Options(), uriResolver: (URI) -> InputStream
                 "maxProperties" -> children.add(parsePropertiesSize(childPointer, uri,
                         PropertiesValidator.ValidationType.MAX_PROPERTIES, value))
                 "required" -> children.add(parseRequired(childPointer, uri, value))
+                "overridden" -> children.add(parseOverridden(childPointer, uri, value))
                 "items" -> children.add(parseItems(json, childPointer, uri, value))
                 in NumberValidator.typeKeywords -> children.add(parseNumberLimit(childPointer, uri,
                         NumberValidator.findType(key), value))
@@ -371,6 +373,16 @@ class Parser(var options: Options = Options(), uriResolver: (URI) -> InputStream
         return RequiredSchema(uri, pointer, value.mapIndexed { i, entry ->
             if (entry !is JSONString)
                 throw JSONSchemaException("required items must be string - ${pointer.child(i)}")
+            entry.value
+        })
+    }
+
+    private fun parseOverridden(pointer: JSONPointer, uri: URI?, value: JSONValue?): OverriddenSchema {
+        if (value !is JSONSequence<*>)
+            throw JSONSchemaException("overridden must be array - ${pointer.pointerOrRoot()}")
+        return OverriddenSchema(uri, pointer, value.mapIndexed { i, entry ->
+            if (entry !is JSONString)
+                throw JSONSchemaException("overridden items must be string - ${pointer.child(i)}")
             entry.value
         })
     }
